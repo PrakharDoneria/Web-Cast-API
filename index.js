@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -57,6 +58,24 @@ app.get('/cast', async (req, res) => {
   } catch (err) {
     console.error('Error retrieving record:', err);
     res.status(500).json({ error: 'Failed to retrieve record' });
+  }
+});
+
+app.get('/preview', async (req, res) => {
+  const { uid } = req.query;
+  const db = client.db('stream');
+
+  try {
+    const result = await db.collection('codes').findOne({ uid });
+    if (result) {
+      const htmlCode = result.code; 
+      res.send(htmlCode);
+    } else {
+      res.status(404).json({ error: 'Record not found' });
+    }
+  } catch (err) {
+    console.error('Error retrieving record for preview:', err);
+    res.status(500).json({ error: 'Failed to retrieve record for preview' });
   }
 });
 

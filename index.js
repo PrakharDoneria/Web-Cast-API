@@ -26,16 +26,17 @@ app.get('/create', async (req, res) => {
     const existingRecord = await db.collection('codes').findOne({ uid });
     if (existingRecord) {
       await db.collection('codes').updateOne({ uid }, { $set: { code } });
-      res.json({ code: 200, message: 'Record updated successfully' });
+      res.json({ status: 'success', message: 'Record updated successfully' });
     } else {
       await db.collection('codes').insertOne({ uid, code });
-      res.json({ code: 200, message: 'Record created successfully' });
+      res.json({ status: 'success', message: 'Record created successfully' });
     }
   } catch (err) {
     console.error('Error creating/updating record:', err);
-    res.status(500).json({ error: 'Failed to create/update record' });
+    res.status(500).json({ status: 'error', message: 'Failed to create/update record' });
   }
 });
+
 
 app.get('/delete', async (req, res) => {
   const { uid } = req.query;

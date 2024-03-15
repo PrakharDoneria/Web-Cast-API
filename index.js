@@ -23,11 +23,17 @@ app.get('/create', async (req, res) => {
   const db = client.db('stream');
 
   try {
-    await db.collection('codes').insertOne({ uid, code });
-    res.json({ code: 200 });
+    const existingRecord = await db.collection('codes').findOne({ uid });
+    if (existingRecord) {
+      await db.collection('codes').updateOne({ uid }, { $set: { code } });
+      res.json({ code: 200, message: 'Record updated successfully' });
+    } else {
+      await db.collection('codes').insertOne({ uid, code });
+      res.json({ code: 200, message: 'Record created successfully' });
+    }
   } catch (err) {
-    console.error('Error creating record:', err);
-    res.status(500).json({ error: 'Failed to create record' });
+    console.error('Error creating/updating record:', err);
+    res.status(500).json({ error: 'Failed to create/update record' });
   }
 });
 
